@@ -1,0 +1,27 @@
+LIBNAME newlib "C:\전산통계\과제";
+
+DATA newlib.rawdata;
+INPUT Major $ 1-12  ID Name $ 16-28 E1 E2 E3 Final;
+DATALINES;
+Economics   11 Hong Jiyoung 18 15 15 30
+Mathematics 12 Kim Younghee 20 18 15 35
+STATISTICS  13 Park Soyoun  14 20 17 40
+Statistics  14 Lee Minsoo   17 10 19 39
+RUN;
+
+DATA newdata;
+	SET newlib.rawdata;
+	total=(E1+E2+E3+Final);
+	IF total < 85 THEN grade="더노력하세요";
+		ELSE grade="참잘했어요";
+	IF Major ='Statistics' THEN group="Statistics";
+		ELSE group="Others";
+RUN;
+
+PROC SORT DATA=newdata;
+	BY total;
+RUN;
+
+PROC PRINT DATA=newdata;
+RUN; 
+
