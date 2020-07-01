@@ -12,3 +12,4 @@
 #### HW2
 * HW2.pdf (문제 설명)
 * class1_eng.sas7bdat, class1_info.sas7bdat, class1_math.sas7bdat, class2_eng.sas7bdat, class2_info.sas7bdat, class2_math.sas7bdat (문제 풀이에 필요한 데이터)
+* hw2_1.sas, hw2_2.sas (문제 답)
