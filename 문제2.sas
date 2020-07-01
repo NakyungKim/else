@@ -1,22 +1,22 @@
-/* ¹®Á¦2 */
+/* ë¬¸ì œ2 */
 
 
-/* (1) <one>, <two> µ¥ÀÌÅÍ¼Â »ı¼º */
+/* (1) <one>, <two> ë°ì´í„°ì…‹ ìƒì„± */
 data one;
-	infile "C:\Àü»êÅë°è\°úÁ¦\q2_raw01.txt" firstobs=10;
+	infile "C:\ì „ì‚°í†µê³„\ê³¼ì œ\q2_raw01.txt" firstobs=10;
 	input no @5 math_per percent7. eng_score @19 name $6. gender $ @;
 	if gender="M" then input award yen7.;
 		else if gender="F" then input award dollar6.;
 run;
 data two;
-	infile "C:\Àü»êÅë°è\°úÁ¦\q2_raw02.txt" firstobs=10;
+	infile "C:\ì „ì‚°í†µê³„\ê³¼ì œ\q2_raw02.txt" firstobs=10;
 	input no @5 math_per percent7. eng_score @19 name $6. gender $ @;
 	if gender="M" then input award yen7.;
 		else if gender="F" then input award dollar6.;
 run;
 
-/* (2) <all> µ¥ÀÌÅÍ¼Â »ı¼º */
-*** retain ¹®Àå È°¿ëÇÏ¿© Áßº¹ °üÃøÄ¡ Áö¿ì±â µî;    
+/* (2) <all> ë°ì´í„°ì…‹ ìƒì„± */
+*** retain ë¬¸ì¥ í™œìš©í•˜ì—¬ ì¤‘ë³µ ê´€ì¸¡ì¹˜ ì§€ìš°ê¸° ë“±;    
 proc sort data=one;  by no;  run;
 proc sort data=two;  by no;  run;
 data all (drop=oldno);
@@ -28,13 +28,13 @@ data all (drop=oldno);
 	retain oldno;
 run;
 
-/* (3) final µ¥ÀÌÅÍ¼Â »ı¼º */  
+/* (3) final ë°ì´í„°ì…‹ ìƒì„± */  
 proc sort data=all out=all_sorted;  by gender descending ave;  run;
 data final (keep=no name gender f_count m_count ave rank);
 	set all_sorted; 
 	f_count + (gender="F");
 	m_count + (gender="M");
-	if gender="F" then rank = compress(gender) || " ³»¿¡¼­ "  || compress(f_count)|| "µî";
-		else rank = compress(gender) || " ³»¿¡¼­ "  || compress(m_count)|| "µî";
+	if gender="F" then rank = compress(gender) || " ë‚´ì—ì„œ "  || compress(f_count)|| "ë“±";
+		else rank = compress(gender) || " ë‚´ì—ì„œ "  || compress(m_count)|| "ë“±";
 	format ave percent9.2;
 run;
