@@ -1,0 +1,645 @@
+---
+title: "datamining-2020f homework1"
+author: "09 조"
+date: '2020 9 12 '
+output: html_document
+---
+
+## 조원 : 1815323 IT공학과 김나경, 1816485 IT공학과 최유나
+## **(최종 검토자 : 김나경)**
+
+## library load
+
+```{r library}
+# library load
+library(ISLR)
+library(MASS)
+```
+ 
+## ch2) 1. (풀이 : 최유나 / 기여 : 김나경)
+
+### (a) 
+Q: The sample size n is extremely large, and the number of predictors p is small.
+
+A: 
+Better - 표본 크기 n이 매우 크며 예측 변수 p의 수는 적다는 것은 유연한 방법(flexible statistical learning method)이 과도한 overfitting(과적합) 없이 데이터간의 복잡한 관계를 나타낼 수 있다.
+
+### (b)
+Q: The number of predictors p is extremely large, and the number of observations n is small.
+
+A: 
+Worse - 표본 크기 n이 매우 작은 경우에는 유연한 방법을 사용하면 overfitting(과적합) 문제가 발생한다. 즉 유연한 방법을 사용한다면 데이터 간의 잘못된 관계를 나타낼 수 있기 때문에, 이 경우에는 덜 유연한 방법이 선호된다.
+
+### (c)
+Q: The relationship between the predictors and response is highly non-linear.
+
+A: Better - 유연한 통계학습 방법이 비선형 적인 관계를 더 잘 보여준다.
+
+### (d)
+Q: The variance of the error terms, i.e. σ2=Var(ϵ), is extremely high.
+
+A: 
+worse - 분산 오차항이 극히 높은 경우, 유연한 방법을 사용하면 overfitting(과적합) 문제가 생겨 추가적인 noise로 인해 오차가 더욱 증가할 수 있다.
+
+(추가 설명)
+
+예측 모형을 구축할 때마다 결과 값 $Y$과 예측 변수 값 $X = (X_{1}, X_{2}, ..., X_{p}$ 사이에 어떤 관계가 있다고 가정하며, 이 값은 다음과 같은 형식으로 작성할 수 있다.
+
+$Y = f(X) + \epsilon$
+여기서 $f$는 $X$의 일부 고정 함수이며 $\epsilon$은 평균 0을 갖는 임의 오차항($X$와 무관)이다. 즉, *$\epsilon$이(가) 소요될 것으로 예상되는 가치*는 평균 0:
+${E}[\epsilon] = 0$
+
+잔차 제곱합에 대한 기대값, $(Y - \hat{Y})^2$, 의 예상 값은 다음과 같이 표현할 수 있다.
+
+$$
+\begin{align*}
+    \mathbb{E}[(Y - \hat{Y})^2] &= \mathbb{E}[(f(X) + \epsilon - \hat{f}(X))^2] \\
+     & = (f(X) - \hat{f}(X))^2 + Var(\epsilon)
+\end{align*}
+$$
+
+여기서 $[f(X) - \hat{f}(X)]^2$를 *reducible error*라고 하고 $Var(\epsilon)$를 *irreducible error*라고 한다.
+
+irreducible error가 매우 높은 경우, 덜 유연한 방법이 irreducible error와의 관계를 찾을 수 있기 때문에 유연한 방법이 더 나쁜 성과를 낼 것으로 예상한다.
+
+## ch2) 2. (풀이 : 김나경 / 기여 : 최유나)
+
+### (a) 
+
+Q: Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.
+
+A: <center><img src="https://i.imgur.com/pDU1LNp.png" style="width: 800px;"/></center>
+
+### (b)
+
+Q: Explain why each of the five curves has the shape displayed in part (a).
+
+A:
+
+1) Bias(제곱 편향)
+
+- 유연성이 증가할수록 편향이 감소한다. 편향은 실제 문제를 더 단순한 모델로 근사시킴으로 인해 발생되는 오차를 의미한다. 유연성이 증가하면 하나의 데이터 포인트에 대해서 영향을 받는 정도가 줄어들기 때문에 편향 역시 감소한다고 볼 수 있다.
+
+
+
+2) Variance(분산)
+
+- 유연성이 증가할수록 분산은 증가한다. 분산은 다른 training data를 사용하여 추정하는 경우 $\hat{f}$이 바뀌는 정도를 말한다. 이상적으로는 $\hat{f}$에 대한 추정이 훈련자료에 따라 크게 변동되지 않아야 한다. 하지만, 분산이 높으면 훈련 데이터의 변화가 적더라도 $\hat{f}$이 크게 변할 수 있다. 일반적으로 통계학습 방법의 유연성이 높을수록 분산이 높다. 유연한 곡선은 관측치들을 너무 잘 따라가기 때문에 분산이 높다고 할 수 있는데, 이 이유는 데이터 포인트 중 어느 하나를 변화시키면 이에 따른 $\hat{f}$가 크게 변할 수 있기 때문이다.  
+
+
+
+3) training Error(훈련 오차)
+
+- 유연성이 증가할수록 훈련 오차는 감소한다.예를 들어 KNN에서 훈련오차율은 1/K로 나타낼 수 있는데, 1/K이 증가함에 따라 회귀 설정에서와 같이 훈련 오차율은 지속적으로 감소한다. 물론 유연한 방법은 일반적으로 분산이 높고 복잡한 관계를 완전히 학습할 수 있는 한편, 훈련 오차와 검정 오차의 분리가 나타나며 overfitting(과적합)문제는 발생할 수 있다. 
+
+
+
+4) Test Error(검정 오차)
+
+- 유연성이 증가함에 따라 검정 오차는 처음에 감소하다가 유연성이 지나치게 커져 overfitting(과적합)이 일어날 때 다시 증가한다. 감소와 증가의 교차점은 bias-variance trade off 지점이다. 3)번의 훈련 오차와는 강한 상관관계는 없지만 KNN에서의 검정 오차와 훈련 오차는 동일한 1/K의 형태로 나타낼 수 있다.훈련 오차는 유연성이 증가함에 따라 지속적으로 감소하는 반면, 검정 오차는 U 모양을 띄며 감소하다가 다시 증가하는 형태를 가진다. 이 때, 최소지점은 대략 K=10일 때 가지게 된다. 
+
+
+
+5) Irreducible Error(베이즈 오차)
+
+- 유연성 증가여부와 관계없이 베이즈 오차는 항상 일정하다. 베이즈 오차는 대략적으로 추정되는 system의 불확실성과 noise에 의해 생기는 오차를 의미한다. $\epsilon$은 $y$를 예측하는 데 사용되는 $X$에도 없는 측정되지 않은 변수를 포함할 수 있다. 즉,$\epsilon$은 $X$에서 설명이 불가능한 $y$의 측정할 수 없는 변동을 포함하기 때문에 모델의 유연성과는  관계없이 항상 일정한 값을 지닌다.
+
+
+
+## ch2) 7. (풀이 : 최유나 / 기여 : 김나경)
+
+### (a)
+Q: Compute the Euclidean distance between each observation and the test point, Z=(X1,X2,X3)=(0,0,0).
+
+A:
+
+$d(a, b) = d(b, a) = \sqrt{\sum_{i = 1}^{p}(a_{i} - b_{i})^2}$
+
+1) 관측치 1 : $\sqrt{3^2}$= **3**
+
+2) 관측치 2 : $\sqrt{2^2}$= **2**
+
+3) 관측치 3 : $\sqrt{1^2+3^2}$=$\sqrt{10}$= **3.1623**
+
+4) 관측치 4 : $\sqrt{1^2+2^2}$=$\sqrt{5}$= **2.2361**
+
+5) 관측치 5 : $\sqrt{(-1)^2+1^2}$=$\sqrt{2}$= **1.4142**
+
+6) 관측치 6 : $\sqrt{1^2+1^2+1^2}$=$\sqrt{3}$= **1.7321**
+
+### (b)
+Q: What is our prediction with K = 1? Why?
+
+A: 녹색이다. 다섯번째 관측치(1.4142)가 값에 가장 가깝기 때문이다.
+
+
+### (c)
+Q: What is our prediction with K = 3? Why?
+
+A: 붉은색이다. 관측치와 가장 가까운 상위 세개는 관측치 2(2), 관측치 5(1.4142), 관측치 6(1.7321)이고, 관측치 5는 녹색이며 관측치 2, 관측치 6은 붉은 색이다.
+따라서 녹색의 경우 추정 확률이 1/3이고, 붉은색의 경우 2/3이다. 따라서 KNN분류에서 K=3을 빨간색 등급에 속할 것이라 예측할 것이다.
+
+### (d)
+Q: If the Bayes decision boundary in this problem is highly nonlinear, then would we expect the best value for K to be large or small? Why?
+
+A: 
+small - 베이즈 결정경계가 아주 비선형적이면, 예상되는 최적의 $K$값은 더 작을 것이다. 작은 $K$는 더 유연할 것이고, KNN 경계의 변형이 쉬울 것이다. 반면, $K$값이 크다면 더 많은 데이터들을 고려하기 때문에 선형적 경계를 생성할 것이다.
+
+
+
+## ch2) 8. (풀이 : 김나경 / 기여 : 최유나)
+This exercise relates to the College data set, which can be found in the file College.csv. It contains a number of variables for 777 different universities and colleges in the US. The variables are
+
+* Private: 공립/사립 지표
+* Apps: 받은 응용 프로그램 수
+* Accept: 수락한 신청자
+* Enroll: 새로 등록한 학생 수
+* Top10perc: 고등학교 수업의 상위 10%의 신입생
+* Top25perc: 고등학교 수업의 상위 25%의 신입생
+* F.Undergrad: 정규 학부생 수
+* P.Undergrad: part-time 학부생 수
+* Outstate: 주 외 교육비
+* Room.Board: 객실 및 보드 비용
+* Books: 도서 예상 비용
+* Personal: 개인 지출 추정치
+* PhD: 박사학위 소지 교수 비율
+* Terminal: terminal 학위가 있는 교수진의 비율
+* S.F.Ratio: 학생/학력비
+* perc.alumni: 기부하는 동문 비율
+* Expend: 학생당 교육비
+* Grad.Rate: 졸업률
+
+
+### (a)
+Use the read.csv() function to read the data into R. Call the loaded data college. Make sure that you have the directory set to the correct location for the data.
+
+```{r}
+# csv파일 불러오기
+college <- read.csv("./data/College.csv", header=TRUE) 
+str(college) # check, 첫 변수가 college name 
+```
+
+### (b)
+Look at the data using the fix() function. You should notice that the first column is just the name of each university. We don't really want R to treat this as data. However, it may be handy to have these names for later.
+- fix() 는 Rstudio에서는 지원하지 않는 함수입니다.
+
+```{r}
+#대학 이름을 인덱스에 추가
+#첫 번째 열을 삭제
+rownames(college) <- college[,1]
+college[,1] <- NULL
+
+head(college)
+```
+### (c)
+
+#### i.
+Use the summary() function to produce a numerical summary of the variables in the data set.
+```{r}
+# summar에서 summary로 바꿨습니다.
+summary(college)
+```
+
+#### ii.
+ Use the pairs() function to produce a scatterplot matrix of the first ten columns or variables of the data. Recall that you can reference the first ten columns of a matrix A using A[, 1:10].
+ 
+```{r}
+#산점도 행렬 그리기
+pairs(College[, 1:10])
+```
+ 
+#### iii
+ Use the plot() function to produce side-by-side boxplots of Outstate versus Private.
+```{r}
+# boxplots 그리기
+plot(College$Private, College$Outstate, xlab = "Private", ylab = "Out-of-state tuition (dollars)")
+```
+
+#### iv.
+ Create a new qualitative variable, called Elite, by binning the Top10perc variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%.
+ 
+ Use the summary() function to see how many elite universities there are. Now use the plot() function to produce side-by-side boxplots of Outstate versus Elite.
+```{r}
+# Top10perc인 학생 비율이 50%가 넘어가는 학교를 elite변수로 만들기
+#엘리트 학교 수: 78 / 비엘리트 학교 수: 699
+Elite=rep("No",nrow(College))
+Elite[College$Top10perc >50]="Yes"
+Elite=as.factor(Elite)
+College=data.frame(College ,Elite)
+
+summary(College$Elite)
+```
+```{r}
+#plot 그리기
+plot(College$Elite, College$Outstate, xlab = "Elite", ylab = "Out-of-state tuition (dollars)")
+```
+
+#### v.
+ Use the hist() function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow = c(2, 2)) useful: it will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
+ 
+```{r}
+#히스토그램 그리기
+par(mfrow = c(2, 2))
+hist(College$Apps, xlab = "Number of applicants", main = "Histogram for all colleges")
+hist(College$Apps[College$Private == "Yes"], xlab = "Number of applicants", main = "Histogram for private schools")
+hist(College$Apps[College$Private == "No"], xlab = "Number of applicants", main = "Histogram for public schools")
+hist(College$Apps[College$Elite == "Yes"], xlab = "Number of applicants", main = "Histogram for elite schools")
+```
+```{r}
+par(mfrow = c(2, 2))
+hist(College$Expend, xlab = "Instructional expenditure per student (dollars)", main = "Histogram for all colleges")
+hist(College$Expend[College$Private == "Yes"], xlab = "Instructional expenditure per student (dollars)", main = "Histogram for private schools")
+hist(College$Expend[College$Private == "No"], xlab = "Instructional expenditure per student (dollars)", main = "Histogram for public schools")
+hist(College$Expend[College$Elite == "Yes"], xlab = "Instructional expenditure per student (dollars)", main = "Histogram for elite schools")
+```
+```{r}
+par(mfrow = c(2, 2))
+hist(College$S.F.Ratio, xlab = "Student-Faculty Ratio", main = "Histogram for all colleges")
+hist(College$S.F.Ratio[College$Private == "Yes"], xlab = "Student-Faculty Ratio", main = "Histogram for private schools")
+hist(College$S.F.Ratio[College$Private == "No"], xlab = "Student-Faculty Ratio", main = "Histogram for public schools")
+hist(College$S.F.Ratio[College$Elite == "Yes"], xlab = "Student-Faculty Ratio", main = "Histogram for elite schools")
+```
+ 
+#### vi.
+Continue exploring the data, and provide a brief summary of what you discover.
+```{r}
+NonTuitionCosts = College$Room.Board + College$Books + College$Personal
+College = data.frame(College, NonTuitionCosts)
+par(mfrow = c(1, 2))
+plot(College$Private, College$NonTuitionCosts, xlab = "Private", ylab = "Total non-tuition costs per year (dollars)")
+plot(College$Elite, College$NonTuitionCosts, xlab = "Elite", ylab = "Total non-tuition costs per year (dollars)")
+```
+
+* 왼쪽 box-plots을 보면, 사교육비가 매우 높은 일부 학교들을 제외하고는 사립학교와 공립학교 사이의 사교육 비용의 중앙값은 큰 차이가 없다. 
+* 그러나 오른쪽 box-plots을 보면, 엘리트 학교와 비엘리트 학교 간의 사교육비 중앙값은 차이가 있다. 엘리트 학교들이 사교육비를 더 많이 지출한다.
+
+```{r}
+AcceptPerc = College$Accept / College$Apps * 100
+College = data.frame(College, AcceptPerc)
+par(mfrow = c(1, 2))
+plot(College$Private, College$AcceptPerc, xlab = "Private", ylab = "Acceptance Rate")
+plot(College$Elite, College$AcceptPerc, xlab = "Elite", ylab = "Acceptance Rate")
+```
+```{r}
+summary(College$AcceptPerc[College$Private == "Yes"])
+summary(College$AcceptPerc[College$Private == "No"])
+summary(College$AcceptPerc[College$Elite == "Yes"])
+summary(College$AcceptPerc[College$Elite == "No"])
+```
+
+* 왼쪽 box-plots은 사립학교와 공립학교의 합격률 중앙값이 75% 내외로 비슷하고 사립학교는 합격률 범위가 훨씬 넓다는 것을 보여준다(최소 15.45%, 최대 100%). 
+
+* 오른쪽 box-plots으로 엘리트 학교와 비엘리트 학교를 비교하면 엘리트 학교는 비엘리트 학교에 비해 합격률 중앙값이 낮다.(중앙값 53.3%)
+
+```{r}
+par(mfrow = c(2, 2))
+hist(College$perc.alumni, xlab = "Percent of alumni who donate", main = "Histogram for all colleges")
+hist(College$perc.alumni[College$Private == "Yes"], xlab = "Percent of alumni who donate", main = "Histogram for private schools")
+hist(College$perc.alumni[College$Private == "No"], xlab = "Percent of alumni who donate", main = "Histogram for public schools")
+hist(College$perc.alumni[College$Elite == "Yes"], xlab = "Percent of alumni who donate", main = "Histogram for elite schools")
+```
+
+* histogram을 보면 사립학교와 엘리트학교일수록 기부하는 동문의 비율이 높은 편이다.
+
+
+```{r}
+par(mfrow = c(2, 2))
+plot(College$PhD, College$Grad.Rate, xlab = "Number of faculty with PhDs", ylab = "Graduation Rate")
+plot(College$Terminal, College$Grad.Rate, xlab = "Number of faculty with terminal degrees", ylab = "Graduation Rate")
+plot(College$S.F.Ratio, College$Grad.Rate, xlab = "Student-faculty ratio", ylab = "Graduation Rate")
+plot(College$Expend, College$Grad.Rate, xlab = "Instructional expenditure per student (dollars)", ylab = "Graduation Rate")
+```
+
+산점도를 통해 학생의 졸업률을 분석해보면,
+
+* 왼쪽 상단 플롯은 박사학위 소지 교수 수와 졸업률 사이의 관계를 나타낸 산점도인데 약한 긍정적인 관계가 보인다.
+* 오른쪽 상단 플롯은 terminal학위를 가진 교직원과 졸업률 사이에 관계가 없음을 알 수 있다.
+* 왼쪽 하단 플롯은 학생/학력 비율이 증가함에 따라 일반적으로 졸업률이 감소하는 경향을 보여준다.
+* 오른쪽 하단 플롯은 학생당 교육비 지출과 졸업률 사이에 긍정적인 관계가 있음을 보여주며, 높은 지출은 높은 졸업률에 상응한다.
+
+
+
+
+## ch2) 9. (풀이 : 최유나 / 기여 : 김나경)
+This exercise involves the Auto data set studied in the lab. Make sure that the missing values have been removed from the data.
+
+### (a)
+Which of the predictors are quantitative, and which are qualitative?
+
+```{r}
+#csv파일 읽기
+Auto = read.csv("./data/Auto.csv", header = TRUE, na.strings = "?")
+Auto = na.omit(Auto)
+summary(Auto)
+head(Auto)
+```
+
+Quantitative(양적 변수):
+
+* mpg - 갤런당 마일 수
+* cylinders - 4 - 8 사이의 실린더 수
+* displacement - 엔진 변위 (inches)
+* horsepower - 엔진 마력
+* weight - 차량 중량 (lbs.)
+* acceleration - 0mph에서 60mph까지 가속하는 시간 (sec.)
+* year - 연식 (modulo 100)
+
+Qualitative(질적 변수):
+
+* origin - 자동차 원산지 (1. American, 2. European, 3. Japanese)
+* name - 차량 이름
+
+
+### (b)
+ What is the range of each quantitative predictor? You can answer this using the range() function.
+```{r}
+#정량적 예측 변수 범위 알아보기
+?range
+range(Auto$mpg)
+range(Auto$cylinders)
+range(Auto$displacement)
+range(Auto$horsepower)
+range(Auto$weight)
+range(Auto$acceleration)
+range(Auto$year)
+```
+ 
+ 정량적 예측 변수 범위:
+ 
+* mpg = 37.6
+* cylinders = 5
+* displacement = 387
+* horsepower = 184
+* weight = 3527
+* acceleration = 16.8
+* year = 12
+
+
+### (c)
+What is the mean and standard deviation of each quantitative predictor?
+```{r}
+#평균과 표준편차 알아보기
+colMeans(Auto[, 1:7])
+apply(Auto[, 1:7], MARGIN = 2, FUN = "sd")
+```
+
+정량적 예측 변수의 평균 및 표준 편차:
+
+* mpg: 평균 = 23.45, 표준편차 = 7.81
+* cylinders: 평균 = 5.47, 표준편차 = 1.71
+* displacement: 평균 = 194.41, 표준편차 = 104.64
+* horsepower: 평균 = 104.47, 표준편차 = 38.49
+* weight: 평균 = 2977.58, 표준편차 = 849.40
+* acceleration: 평균 = 15.54, 표준편차 = 2.76
+* year: 평균 = 75.98, 표준편차 = 3.68
+
+
+### (d)
+Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains?
+```{r}
+#10~85번째 관측치 제거
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "range")
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "mean")
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "sd")
+```
+
+* mpg: 범위 = 35.6, 평균 = 24.40, 표준편차 = 7.87
+* cylinders: 범위 = 5, 평균 = 5.37, 표준편차 = 1.65
+* displacement: 범위 = 387, 평균 = 187.24, 표준편차 = 99.68
+* horsepower: 범위 = 184, 평균 = 100.72, 표준편차 = 35.71
+* weight: 범위 = 3348, 평균 = 2935.97, 표준편차 = 811.30
+* acceleration: 범위 = 16.3, 평균 = 15.73, 표준편차 = 2.69
+* year: 범위=12, 평균 = 77.15, 표준편차 = 3.11
+
+### (e)
+Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. Comment on your findings.
+
+```{r}
+#산점도 그리기
+par(mfrow = c(2, 2))
+plot(Auto$displacement, Auto$mpg, xlab = "Engine displacement (cubic inches)", ylab = "Miles per gallon")
+plot(Auto$horsepower, Auto$mpg, xlab = "Horsepower", ylab = "Miles per gallon")
+plot(Auto$weight, Auto$mpg, xlab = "Car weight (pounds)", ylab = "Miles per gallon")
+plot(Auto$year, Auto$mpg, xlab = "Model Year", ylab = "Miles per gallon")
+```
+
+* 엔진 배기량/마력/자동차 중량을 증가시키면 연료 효율이 저하된다는 상관관계가 있다.
+
+```{r}
+#산점도 그리기
+par(mfrow = c(2, 2))
+plot(Auto$year, Auto$acceleration, xlab = "Model Year", ylab = "0 to 60mph time (seconds)")
+plot(Auto$year, Auto$displacement, xlab = "Model Year", ylab = "Engine displacement (cubic inches)")
+plot(Auto$year, Auto$weight, xlab = "Model Year", ylab = "Car weight (pounds)")
+plot(Auto$year, Auto$horsepower, xlab = "Model Year", ylab = "Horsepower")
+```
+
+* 1970년부터 1982년까지 일반적으로 감소하는 최대 엔진 배기량, 자동차 중량, 마력이 약간 감소하는 것을 알 수 있다. 
+
+역사적 관점에서 보면, 이러한 변화는 1973년과 1979년 석유 파동에 대한 대응일 수 있는데, 이 때 유가 급등으로 인해 자동차 제조업체들은 자동차의 효율을 향상시키기 위한 조치를 취하게 되었다.
+
+```{r}
+par(mfrow = c(2, 2))
+plot(Auto$weight, Auto$acceleration, xlab = "Car weight (pounds)", ylab = "0 to 60mph time (seconds)")
+plot(Auto$cylinders, Auto$acceleration, xlab = "Number of engine cylinders", ylab = "0 to 60mph time (seconds)")
+plot(Auto$displacement, Auto$acceleration, xlab = "Engine displacement (cubic inches)", ylab = "0 to 60mph time (seconds)")
+plot(Auto$horsepower, Auto$acceleration, xlab = "Horsepower", ylab = "0 to 60mph time (seconds)")
+```
+
+자동차가 시속 0에서 60마일로 가속하는 데 걸리는 시간(초)과 다른 요소들 사이의 관계를 비교했다. 
+
+* 0~60시간은 엔진 변위량 증가와 마력 증가와 함께 감소한다. 
+* 엔진 실린더 수가 증가하면 0~60시간이 감소하는 경향이 있지만 약하다.
+* 또한 자동차 중량에 따라 0~60시간도 감소하는 경향이 있다.
+
+```{r}
+par(mfrow = c(2, 1))
+plot(Auto$weight, Auto$horsepower, xlab = "Car weight (pounds)", ylab = "Horsepower")
+plot(Auto$weight, Auto$displacement, xlab = "Car weight (pounds)", ylab = "Engine displacement (cubic inches)")
+```
+
+* 높은 중량은 높은 마력과 높은 엔진 변위와 상관관계가 있음을 보여준다.즉, 마력과 엔진 변위가 증가할수록 차의 중량도 증가한다.
+
+### (f)
+Suppose we wish to predict gas mileage (mpg) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+
+```{r}
+Auto$origin[Auto$origin == 1] = "American"
+Auto$origin[Auto$origin == 2] = "European"
+Auto$origin[Auto$origin == 3] = "Japanese"
+Auto$origin = as.factor(Auto$origin)
+
+plot(Auto$origin, Auto$mpg, xlab = "Country of origin", ylab = "Miles per gallon")
+```
+
+* (e)에서 만든 산점도에 따르면, 엔진 변위, 마력, 자동차 중량을 증가시키면 연료 효율이 저하된다는 분명한 상관관계가 있기 때문에 mpg예측에 도움이 많이 될 것으로 보인다.
+
+* 또한 위의 box-plot을 보면, 평균적으로 미국, 유럽, 일본 순으로 효율적이며 자동차의 원산지와 연비 사이에는 관계가 있음을 알 수 있다.
+
+
+
+
+## ch2) 10. (풀이 : 김나경 / 기여 : 최유나)
+
+### (a)
+How many rows are in this data set? How many columns? What do the rows and columns represent?
+
+```{r}
+head(Boston)
+```
+```{r}
+?Boston
+```
+Boston 데이터셋은 506행 14열로 이루어져있다.
+
+
+* crim - 도시별 범죄율
+* zn - 25,000 평방피트를 초과 거주지역 비율
+* indus - 비소매상업지역 면적 비율
+* chas - 찰스강의 경계에 위치한 경우는 1, 아니면 0
+* nox - 일산화질소 농도
+* rm - 주택당 방 수
+* age - 1940년 이전에 건축된 주택의 비율
+* dis - 직업센터의 거리
+* rad - 방사형 고속도로까지의 거리
+* tax - 10000달러 당 재산세율
+* ptratio - 학생/교사 비율
+* black - 인구 중 흑인 비율
+* lstat - 인구 중 하위 계층 비율
+* medv - 자가소유주택의 중간값 1000달러 
+ 
+### (b)
+Make some pairwise scatterplots of the predictors (columns) in this data set. Describe your findings.
+
+```{r}
+pairs(Boston)
+```
+
+
+```{r}
+par(mfrow = c(2, 2))
+plot(Boston$age, Boston$medv, xlab = "Percent of units built prior to 1940", ylab = "Median home value in $1000s")
+plot(Boston$lstat, Boston$medv, xlab = "Percent of lower status residents", ylab = "Median home value in $1000s")
+plot(Boston$medv, Boston$ptratio, xlab = "Median home value in $1000s", ylab = "Pupil-teacher ratio")
+plot(as.factor(Boston$chas), Boston$medv, xlab = "Borders Charles River", ylab = "Median home value in $1000s")
+```
+첫 번째, Median home value와 많은 비범죄 요인 사이의 관계를 알아보기 위한 plot 생성. 
+* 중위수 주택 값이 비쌀수록 낮은 지위의 사람들이 적다. 
+* Charles River와 경계를 이루는 지구가 평균적으로 약간 높은 가격의 집값으로 구성되어 있다.
+
+```{r}
+par(mfrow = c(2, 2))
+plot(Boston$medv, Boston$nox, xlab = "Median home value in $1000s", ylab = "Nitric oxides concentration (parts per 10 million)")
+plot(Boston$indus, Boston$nox, xlab = "Percent of non-retail business acres", ylab = "Nitric oxides concentration (parts per 10 million)")
+plot(Boston$medv, Boston$black, xlab = "Median home value in $1000s", ylab = "1000(Proportion of black residents - 0.63)^2")
+plot(Boston$dis, Boston$medv, xlab = "Weighted distance to Boston employment centers", ylab = "Median home value in $1000s")
+```
+
+
+### (c)
+Are any of the predictors associated with per capita crime rate? If so, explain the relationship.
+
+```{r}
+hist(Boston$crim, breaks = 50)
+```
+* 대부분의 교외 지역에서는 범죄가 없다. (데이터의 80%가 범죄율 발생의 20 아래로 떨어진다.)
+
+```{r}
+pairs(Boston[Boston$crim < 20, ])
+```
+* 범죄율과 일산화질소 농도. 주택당 방수, 1940년 이전에 지어진 주택 비율, 직업센터의 거리, 인구 중 하위 계층 비율 그리고 중간값까지 관계가 있을 것으로 추정된다.
+
+### (d)
+Do any of the suburbs of Boston appear to have particularly high crime rates ? Tax rates ? Pupil-teacher ratios ?
+
+```{r}
+par(mfrow = c(2, 2))
+hist(Boston$crim, xlab = "Per capita crime rate", main = "Histogram of Boston crime rates")
+hist(Boston$tax, xlab = "Tax rate per 10000 USD", main = "Histogram of Boston tax rates")
+hist(Boston$ptratio, xlab = "Pupil-teacher ratio", main = "Histogram of Boston pupil-teacher ratios")
+```
+
+* 범죄율: 대부분의 교외 지역이 범죄율이 0에 가깝거나 0이라는 것을 알지만, 일부의 교외지역은 범죄율이 매우 높다.
+
+* Tax Rates: 대부분은 비슷한 tax 비율을 가지지만, tax rate가 멀리 떨어져있는 것도 존재한다.
+
+* Ptratio: 크게 특이한 점이나 간격이 없는 것으로 보이며 더 작은 범위를 초과한다.
+
+
+```{r}
+summary(Boston[, c(1, 10, 11)])
+```
+
+히스토그램과 수치해석에 따르면, Boston에서는 범죄율, 세율, 학생과 교사 비율이 높은 것을 볼 수 있다. 최소 범죄율은 0.00632이며, 최대 범죄율은 88.97620이며, 중간값은 0.25651이다. 최저 세율은 10000달러 당 187달러인 반면, 최고 세율은 711달러로 중간값은 330원이다. 학생-교사 비율의 최소비율은 교사 1인당 12.60명인 반면, 최대 학생 비율은 22명으로 중간값은 19.05명이다. 
+중간값을 고려한다면, 데이터 집합의 최대 학생-교사 비율은 높지 않다. 왜냐하면 약 절반이 19 혹은 그 이상의 비율을 가지고 있기 때문이다.
+
+### (e)
+How many of the suburbs in this data set bound the Charles river?
+```{r}
+table(Boston$chas)
+```
+
+35개의 교외지역이 Charles 강으로 둘러쌓여있다. 
+
+
+### (f)
+What is the median pupil-teacher ratio among the towns in this data set?
+
+```{r}
+summary(Boston$ptratio)
+```
+
+마을 사이에 학생-교사의 비율은 교사 1인당 19.05명이다. 
+
+### (g)
+Which suburb of Boston has lowest median value of owneroccupied homes? What are the values of the other predictors for that suburb, and how do those values compare to the overall ranges for those predictors? Comment on your findings.
+
+ 
+```{r}
+Boston[Boston$medv == min(Boston$medv), ]
+```
+
+자가 소유 주택의 중간값(5)이 가장 낮은 교외가 두 곳에 해당한다.
+
+```{r}
+Boston_percentiles <- sapply(Boston[ ,-4], function(x) rank(x)/length(x)) 
+
+Boston_percentiles[c(399, 406),]
+```
+ 
+ 가장 낮은 중간값을 가진 두 관측치가 유사한 값을 가지며, 많은 관측치들이 극단적인 값들을 가짐을 알 수 있다.
+
+* 90th 이상 백분위수: crim, age, lstat
+* 75th 이상 백분위수: indus, nox, rad, tax, ptratio
+* 두 교외가 모두 chas = 0: charles 강 근처에 위치하지 않는다.
+* 백분위수 감소: zn, rm, dis
+* black은 관측치마다 88위수와 35분위수에서 다른 유일한 변수이다.
+
+### (h)
+In this data set, how many of the suburbs average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment on the suburbs that average more than eight rooms per dwelling.
+
+
+```{r}
+#한 주거지당 7개 이상의 객실:
+sum(Boston$rm > 7)
+```
+
+```{r}
+# 한 주거지당 8개 이상의 객실
+Boston_gt_8rooms <- Boston[Boston$rm > 8, ]
+
+nrow(Boston_gt_8rooms)
+```
+
+```{r}
+prop.table(table(Boston_gt_8rooms$chas))
+```
+
+* 약 15%의 집은 찰스 강 근처에 위치해 있다.
+
+```{r}
+summary(Boston_gt_8rooms)
+```
+
+* summary를 보면 한 가구당 평균 8개의 방이 차지하는 공간이 범죄율이 낮고, 질산염의 농도가 낮으며, 흑인 거주자의 비율이 낮으며, 낮은 지위의 거주자의 비율이 전체 데이터 집합에 비해 낮다.
+
